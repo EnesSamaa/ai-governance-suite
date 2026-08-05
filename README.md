@@ -2,10 +2,15 @@
 
 Kurumsal yapay zeka sistemlerinde politika uygulama, denetlenebilirlik, güvenlik ve kod kalitesi için 30 günlük teslim planına göre düzenlenmiş çok dilli monorepo altyapısı.
 
-![CI Status](https://github.com/EnesSamaa/ai-governance-suite/workflows/CI%20Suite/badge.svg)
+[![CI Suite](https://github.com/EnesSamaa/ai-governance-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/EnesSamaa/ai-governance-suite/actions/workflows/ci.yml)
 ![Go Version](https://img.shields.io/badge/go-1.20%2B-blue)
 ![Rust Edition](https://img.shields.io/badge/rust-2021-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+
+git clone https://github.com/EnesSamaa/ai-governance-suite.git
+cargo test --workspace
+
 
 ## Mimari
 
