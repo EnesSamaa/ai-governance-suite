@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": { "build": "tsc --noEmit" },
+  "scripts": { "build": "tsc --noEmit", "test": "tsc --noEmit" },
   "devDependencies": { "typescript": "^5.0.0" }
 }
