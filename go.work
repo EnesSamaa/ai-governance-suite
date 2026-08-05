@@ -1,0 +1,18 @@
+go 1.22.0
+
+use (
+  ./services/cfg-analyzer
+  ./services/mcp-jsonrpc-proto
+  ./services/mcp-transport-sse
+  ./services/prompt-shield-go
+  ./services/oauth2-pkce-mcp
+  ./services/schema-hash-verifier
+  ./services/context-file-parser
+  ./services/firecrawl-mcp-go
+  ./services/db-schema-introspect
+  ./services/git-guided-diff
+  ./services/gum-workflow-cli
+  ./services/cost-governance-eval
+  ./services/release-notes-agent
+  ./services/micro-saas-billing
+)

@@ -1,0 +1,24 @@
+[workspace]
+members = [
+  "crates/ast-diff-core",
+  "crates/dead-code-elim",
+  "crates/mcp-transport-stdio",
+  "crates/mcp-tool-registry",
+  "crates/pii-masker-stream",
+  "crates/mcp-gate-proxy",
+  "crates/ringbuf-telemetry",
+  "crates/ebpf-net-tracer",
+  "crates/dom-a11y-tree",
+  "crates/k6-mcp-runner",
+  "crates/tui-diff-viewer",
+  "crates/hipaa-log-audit",
+  "crates/zero-mem-cache",
+  "crates/ai-governance-suite",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"

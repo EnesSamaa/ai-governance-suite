@@ -1,0 +1,8 @@
+[package]
+name = "k6-mcp-runner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"

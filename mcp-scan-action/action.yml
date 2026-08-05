@@ -1,0 +1,5 @@
+name: MCP Scan
+description: Scan MCP configuration for governance policy violations.
+runs:
+  using: docker
+  image: Dockerfile
