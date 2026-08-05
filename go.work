@@ -15,4 +15,5 @@ use (
   ./services/cost-governance-eval
   ./services/release-notes-agent
   ./services/micro-saas-billing
+  ./services/ai-governance-suite
 )

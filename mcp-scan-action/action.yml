@@ -1,5 +1,14 @@
 name: MCP Scan
-description: Scan MCP configuration for governance policy violations.
+description: Scan MCP configuration for unsafe tool declarations and embedded secrets.
+inputs:
+  path:
+    description: Repository path to scan.
+    required: false
+    default: .
+  allowed_tools:
+    description: Comma-separated allowlist of MCP tool names.
+    required: false
+    default: ""
 runs:
   using: docker
   image: Dockerfile

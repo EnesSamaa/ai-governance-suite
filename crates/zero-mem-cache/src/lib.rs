@@ -1,3 +1,7 @@
-//! Zero-copy in-memory cache primitives.
-
-pub fn module_name() -> &'static str { "zero-mem-cache" }
+//! Bounded, in-memory content-addressed cache for deduplicated LLM context.
+use std::collections::{HashMap, VecDeque}; use std::sync::{Arc, RwLock};
+#[derive(Clone, Default)] pub struct ContextCache { state: Arc<RwLock<State>>, capacity: usize }
+#[derive(Default)] struct State { values: HashMap<String, Arc<str>>, order: VecDeque<String> }
+impl ContextCache { pub fn new(capacity: usize) -> Self { assert!(capacity > 0); Self { state: Arc::new(RwLock::new(State::default())), capacity } } pub fn put(&self, value: impl Into<Arc<str>>) -> String { let value = value.into(); let key = fingerprint(&value); let mut state = self.state.write().expect("cache lock poisoned"); if !state.values.contains_key(&key) { if state.values.len() == self.capacity { if let Some(oldest) = state.order.pop_front() { state.values.remove(&oldest); } } state.order.push_back(key.clone()); state.values.insert(key.clone(), value); } key } pub fn get(&self, key: &str) -> Option<Arc<str>> { self.state.read().expect("cache lock poisoned").values.get(key).cloned() } pub fn len(&self) -> usize { self.state.read().expect("cache lock poisoned").values.len() } }
+fn fingerprint(value: &str) -> String { format!("{:016x}", value.bytes().fold(0xcbf29ce484222325, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3))) }
+#[cfg(test)] mod tests { use super::*; #[test] fn deduplicates_and_returns_shared_context() { let cache = ContextCache::new(2); let first = cache.put("same"); let second = cache.put("same"); assert_eq!(first, second); assert_eq!(&*cache.get(&first).unwrap(), "same"); } #[test] fn evicts_oldest_entry() { let cache = ContextCache::new(1); let first = cache.put("one"); let second = cache.put("two"); assert!(cache.get(&first).is_none()); assert_eq!(&*cache.get(&second).unwrap(), "two"); } }

@@ -1,3 +1,6 @@
-//! Top-level Rust façade for the AI Governance Suite.
-
-pub fn module_name() -> &'static str { "ai-governance-suite" }
+//! Final orchestration facade for governance pipeline stages.
+#[derive(Clone, Debug, Eq, PartialEq)] pub enum Stage { Intake, Policy, Audit, Complete }
+#[derive(Clone, Debug, Eq, PartialEq)] pub struct Run { pub id: String, pub stage: Stage, pub events: Vec<String> }
+pub struct Orchestrator;
+impl Orchestrator { pub fn start(id: impl Into<String>) -> Run { Run { id: id.into(), stage: Stage::Intake, events: vec!["intake accepted".into()] } } pub fn advance(run: &mut Run, permitted: bool) { match run.stage { Stage::Intake => { run.stage = Stage::Policy; run.events.push("policy evaluation started".into()); }, Stage::Policy if permitted => { run.stage = Stage::Audit; run.events.push("policy accepted".into()); }, Stage::Policy => { run.stage = Stage::Complete; run.events.push("policy denied".into()); }, Stage::Audit => { run.stage = Stage::Complete; run.events.push("audit recorded".into()); }, Stage::Complete => {} } } }
+#[cfg(test)] mod tests { use super::*; #[test] fn orchestrates_permitted_flow() { let mut run = Orchestrator::start("run-1"); Orchestrator::advance(&mut run, true); Orchestrator::advance(&mut run, true); Orchestrator::advance(&mut run, true); assert_eq!(run.stage, Stage::Complete); assert_eq!(run.events.len(), 4); } #[test] fn stops_denied_flow() { let mut run = Orchestrator::start("x"); Orchestrator::advance(&mut run, false); Orchestrator::advance(&mut run, false); assert_eq!(run.events.last().unwrap(), "policy denied"); } }

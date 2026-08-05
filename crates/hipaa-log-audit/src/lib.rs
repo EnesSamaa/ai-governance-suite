@@ -1,3 +1,10 @@
-//! HIPAA audit-log primitives.
-
-pub fn module_name() -> &'static str { "hipaa-log-audit" }
+//! HIPAA/GDPR audit validation and deterministic log anonymization.
+#[derive(Clone, Debug, Eq, PartialEq)] pub struct AuditRecord { pub actor: String, pub action: String, pub patient_id: String, pub timestamp: String, pub detail: String }
+#[derive(Clone, Debug, Eq, PartialEq)] pub enum Finding { MissingActor, MissingAction, MissingTimestamp, ContainsPii }
+pub fn validate(record: &AuditRecord) -> Vec<Finding> { let mut findings = Vec::new(); if record.actor.trim().is_empty() { findings.push(Finding::MissingActor); } if record.action.trim().is_empty() { findings.push(Finding::MissingAction); } if record.timestamp.trim().is_empty() { findings.push(Finding::MissingTimestamp); } if has_pii(&record.detail) { findings.push(Finding::ContainsPii); } findings }
+pub fn anonymize(record: &AuditRecord) -> AuditRecord { let mut output = record.clone(); output.patient_id = pseudonym(&record.patient_id); output.detail = mask_emails(&record.detail); output }
+fn pseudonym(value: &str) -> String { format!("patient-{:016x}", hash(value)) }
+fn hash(value: &str) -> u64 { value.bytes().fold(0xcbf29ce484222325, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3)) }
+fn has_pii(value: &str) -> bool { value.split_whitespace().any(|token| token.contains('@') && token.contains('.')) }
+fn mask_emails(value: &str) -> String { value.split_whitespace().map(|token| if token.contains('@') && token.contains('.') { "[EMAIL_REDACTED]" } else { token }).collect::<Vec<_>>().join(" ") }
+#[cfg(test)] mod tests { use super::*; fn record() -> AuditRecord { AuditRecord { actor: "clinician".into(), action: "read".into(), patient_id: "p-1".into(), timestamp: "2026-01-01T00:00:00Z".into(), detail: "contact ada@example.com".into() } } #[test] fn finds_missing_fields_and_pii() { let mut value = record(); value.actor.clear(); assert_eq!(validate(&value), vec![Finding::MissingActor, Finding::ContainsPii]); } #[test] fn anonymizes_identifiers() { let value = anonymize(&record()); assert!(value.patient_id.starts_with("patient-")); assert!(value.detail.contains("[EMAIL_REDACTED]")); } }
